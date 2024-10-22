@@ -1,5 +1,3 @@
-# myapp/views.py
-
 from django.http import JsonResponse
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -9,26 +7,18 @@ from .serializers import LoginSerializer
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 import requests
+import os
+from django.contrib.auth import get_user_model
+from api.models import CustomUser
+from django.utils import timezone
+
+User = get_user_model() 
 
 class LoginAPIView(APIView):
     @swagger_auto_schema(
         operation_description="User login",
         request_body=LoginSerializer,
         responses={200: "Login successful", 400: "Invalid credentials"},
-        manual_parameters=[
-            openapi.Parameter(
-                'username', 
-                openapi.IN_QUERY,  # Change to openapi.IN_FORM if you're using form data
-                type=openapi.TYPE_STRING,
-                description="Your username"
-            ),
-            openapi.Parameter(
-                'password',
-                openapi.IN_QUERY,  # Change to openapi.IN_FORM if you're using form data
-                type=openapi.TYPE_STRING,
-                description="Your password"
-            ),
-        ],
     )
     def post(self, request):
         serializer = LoginSerializer(data=request.data)
@@ -37,11 +27,11 @@ class LoginAPIView(APIView):
             password = serializer.validated_data['password']
             
             # External API endpoint URL
-            external_api_url = 'https://caraga-portal.dswd.gov.ph/api/rest-auth/login/'
+            portal_api_login = os.getenv('PORTAL_API_LOGIN')
             
             # Send a POST request to the external API
             try:
-                response = requests.post(external_api_url, data={
+                response = requests.post(portal_api_login, data={
                     'username': username,
                     'password': password
                 })
@@ -52,7 +42,50 @@ class LoginAPIView(APIView):
                     # Assume the API returns a JSON response
                     api_response_data = response.json()
 
-                    print(api_response_data)
+                    api_key = api_response_data['key']
+                    request.session['key'] = api_key
+
+                    portal_api_employee_details = os.getenv('PORTAL_API_EMPLOYEE_DETAILS')
+
+                    try:
+                        user = User.objects.get(username=username)
+                        user.last_login = timezone.now()
+                        user.save()
+                    except User.DoesNotExist:
+                        response_employee_details = requests.get(f"{portal_api_employee_details}{username}", headers={
+                            'Authorization': f"Token {api_key}"
+                        })
+
+                        if response_employee_details.status_code == 200:
+                            api_response_employee_details_data = response_employee_details.json()
+
+                            employee_details_data = api_response_employee_details_data[0]
+
+                            CustomUser.objects.create(
+                                employee_id=employee_details_data['employee_id'],
+                                id_number=employee_details_data['id_number'],
+                                last_login=timezone.now(),
+                                username=employee_details_data['username'],
+                                first_name=employee_details_data['first_name'],
+                                middle_name=employee_details_data['middle_name'],
+                                last_name=employee_details_data['last_name'],
+                                contact=employee_details_data['contact'],
+                                account_number=employee_details_data['account_number'],
+                                position=employee_details_data['position'],
+                                division=employee_details_data['division'],
+                                section=employee_details_data['section'],
+                                area_of_assignment=employee_details_data['area_of_assignment'],
+                                gender=employee_details_data['gender'],
+                                birthdate=employee_details_data['birthdate'],  # Ensure this is a da]e
+                                image_path=employee_details_data['image_path'],
+                                status=employee_details_data['status'],
+                            )
+
+                        else: 
+                            return JsonResponse({
+                                'status': 'error',
+                                'message': 'No user found in portal'
+                            }, status=response_employee_details.status_code)
                     
                     # Handle the successful login response from the external API
                     return JsonResponse({
@@ -74,11 +107,6 @@ class LoginAPIView(APIView):
                     'message': f'Error connecting to external API: {str(e)}'
                 }, status=500)
 
-            if user is not None:
-                # login(request, user)
-                return Response({'message': 'Login successful'}, status=status.HTTP_200_OK)
-            else:
-                return Response({'error': 'Invalid credentials'}, status=status.HTTP_400_BAD_REQUEST)
         return JsonResponse({
             'status': 'error',
             'message': 'Only POST requests are allowed'
