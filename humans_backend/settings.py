@@ -39,14 +39,17 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'api',
     'drf_yasg',
+    'rest_framework',
 ]
 
 SWAGGER_SETTINGS = {
     'SECURITY_DEFINITIONS': {
         'Basic': {
             'type': 'basic'
-        }
-    }
+        },
+    },
+    'JSON_EDITOR': True, 
+
 }
 
 MIDDLEWARE = [
