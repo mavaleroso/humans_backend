@@ -16,6 +16,7 @@ User = get_user_model()
 
 class LoginAPIView(APIView):
     @swagger_auto_schema(
+        tags=["Authentication"],
         operation_description="User login",
         request_body=LoginSerializer,
         responses={200: "Login successful", 400: "Invalid credentials"},
@@ -76,7 +77,7 @@ class LoginAPIView(APIView):
                                 section=employee_details_data['section'],
                                 area_of_assignment=employee_details_data['area_of_assignment'],
                                 gender=employee_details_data['gender'],
-                                birthdate=employee_details_data['birthdate'],  # Ensure this is a da]e
+                                birthdate=employee_details_data['birthdate'],
                                 image_path=employee_details_data['image_path'],
                                 status=employee_details_data['status'],
                             )
@@ -87,11 +88,23 @@ class LoginAPIView(APIView):
                                 'message': 'No user found in portal'
                             }, status=response_employee_details.status_code)
                     
-                    # Handle the successful login response from the external API
+                    
+                    user_data = {
+                        'user_id': user.id,
+                        'username': user.username,
+                        'first_name': user.first_name,
+                        'last_name': user.last_name,
+                        'image_path': user.image_path,
+                        'position': user.position,
+                        'division': user.division,
+                        'section': user.section,
+                    }
+
                     return JsonResponse({
                         'status': 'success',
                         'message': 'Login successful',
-                        'token': api_response_data.get('token')  # Assuming the external API returns a token
+                        'token': request.session.session_key,
+                        'data': user_data
                     }, status=200)
                 else:
                     # Handle invalid credentials or other errors from the external API
@@ -111,3 +124,4 @@ class LoginAPIView(APIView):
             'status': 'error',
             'message': 'Only POST requests are allowed'
         }, status=405)
+

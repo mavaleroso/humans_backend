@@ -41,16 +41,25 @@ INSTALLED_APPS = [
     'api',
     'drf_yasg',
     'rest_framework',
+    'rest_framework.authtoken',
 ]
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.TokenAuthentication',
+    ),
+}
 
 SWAGGER_SETTINGS = {
     'SECURITY_DEFINITIONS': {
-        'Basic': {
-            'type': 'basic'
-        },
+        'Token': {
+            'type': 'apiKey',
+            'in': 'header',
+            'name': 'Authorization',
+            'description': 'Enter your token in the format: "Token {your_token}"'
+        }
     },
-    'JSON_EDITOR': True, 
-
+    'USE_SESSION_AUTH': False,
 }
 
 MIDDLEWARE = [
@@ -61,6 +70,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'api.middleware.TokenPrefixMiddleware'
 ]
 
 ROOT_URLCONF = 'humans_backend.urls'
