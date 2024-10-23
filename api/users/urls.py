@@ -2,5 +2,5 @@ from django.urls import path
 from .views import CheckActiveSessionView
 
 urlpatterns = [
-    path('session/', CheckActiveSessionView.as_view(), name='session'),
+    path('verify_token', CheckActiveSessionView.as_view(), name='session'),
 ]

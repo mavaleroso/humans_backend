@@ -16,7 +16,7 @@ class CheckActiveSessionView(APIView):
             401: "Unauthorized, token invalid or expired"
         }
     )
-    def get(self, request):
+    def post(self, request):
         # DRF automatically gets the user from the token
         user = request.user
 
@@ -24,7 +24,7 @@ class CheckActiveSessionView(APIView):
         
         # Return user details along with active session info
         return Response({
-            'token': token.key,
+            'api_token': token.key,
             'user_id': user.id,
             'username': user.username,
             'first_name': user.first_name,

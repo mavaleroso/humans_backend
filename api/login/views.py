@@ -13,10 +13,13 @@ from django.contrib.auth import get_user_model
 from api.models import CustomUser
 from django.utils import timezone
 from rest_framework.authtoken.models import Token
+from rest_framework.permissions import AllowAny
 
 User = get_user_model() 
 
 class LoginAPIView(APIView):
+    permission_classes = [AllowAny]
+
     @swagger_auto_schema(
         tags=["Authentication"],
         operation_description="User login",
@@ -101,14 +104,11 @@ class LoginAPIView(APIView):
                         'position': user.position,
                         'division': user.division,
                         'section': user.section,
+                        'api_token': token.key,
+
                     }
 
-                    return JsonResponse({
-                        'status': 'success',
-                        'message': 'Login successful',
-                        'token': token.key,
-                        'data': user_data
-                    }, status=200)
+                    return JsonResponse(user_data, status=200)
                 else:
                     # Handle invalid credentials or other errors from the external API
                     return JsonResponse({
