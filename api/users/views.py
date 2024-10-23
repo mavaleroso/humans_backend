@@ -2,6 +2,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from drf_yasg.utils import swagger_auto_schema
+from rest_framework.authtoken.models import Token
 
 class CheckActiveSessionView(APIView):
     permission_classes = [IsAuthenticated]  # Ensures the request is authenticated
@@ -18,14 +19,18 @@ class CheckActiveSessionView(APIView):
     def get(self, request):
         # DRF automatically gets the user from the token
         user = request.user
+
+        token, created = Token.objects.get_or_create(user=user)
         
         # Return user details along with active session info
         return Response({
-            'active': True,
+            'token': token.key,
             'user_id': user.id,
             'username': user.username,
             'first_name': user.first_name,
             'last_name': user.last_name,
-            'email': user.email,
-            'image_path': user.image_path  # Assuming this field exists in your CustomUser model
+            'image_path': user.image_path,
+            'position': user.position,
+            'division': user.division,
+            'section': user.section,
         })

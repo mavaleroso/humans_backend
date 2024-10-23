@@ -1,6 +1,7 @@
 from django.http import JsonResponse
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth import authenticate
 from rest_framework import status
 from .serializers import LoginSerializer
@@ -11,6 +12,7 @@ import os
 from django.contrib.auth import get_user_model
 from api.models import CustomUser
 from django.utils import timezone
+from rest_framework.authtoken.models import Token
 
 User = get_user_model() 
 
@@ -88,7 +90,8 @@ class LoginAPIView(APIView):
                                 'message': 'No user found in portal'
                             }, status=response_employee_details.status_code)
                     
-                    
+                    token, created = Token.objects.get_or_create(user=user)
+
                     user_data = {
                         'user_id': user.id,
                         'username': user.username,
@@ -103,7 +106,7 @@ class LoginAPIView(APIView):
                     return JsonResponse({
                         'status': 'success',
                         'message': 'Login successful',
-                        'token': request.session.session_key,
+                        'token': token.key,
                         'data': user_data
                     }, status=200)
                 else:
@@ -125,3 +128,22 @@ class LoginAPIView(APIView):
             'message': 'Only POST requests are allowed'
         }, status=405)
 
+
+class LogoutAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    @swagger_auto_schema(
+        operation_description="Log out the user by deleting their authentication token",
+        tags=["Authentication"],
+        responses={204: "Logout successful", 401: "Unauthorized, invalid token"}
+    )
+    def post(self, request):
+        try:
+            # Get the token associated with the authenticated user
+            token = Token.objects.get(user=request.user)
+            # Delete the token (logout)
+            token.delete()
+
+            return Response({"message": "Logout successful"}, status=status.HTTP_204_NO_CONTENT)
+        except Token.DoesNotExist:
+            return Response({"error": "Token not found"}, status=status.HTTP_400_BAD_REQUEST)
