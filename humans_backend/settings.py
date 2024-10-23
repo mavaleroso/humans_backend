@@ -78,8 +78,9 @@ MIDDLEWARE = [
 ROOT_URLCONF = 'humans_backend.urls'
 
 CORS_ALLOW_ALL_ORIGINS = True
+
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",  # Example: React frontend on localhost
+    "http://localhost:5173",
 ]
 
 TEMPLATES = [
