@@ -3,6 +3,7 @@ from django.contrib.auth import get_user_model
 from rest_framework.authtoken.models import Token
 from django.utils import timezone
 import requests
+from api.dataModels.CustomUsers import CustomUser
 
 User = get_user_model() 
 
