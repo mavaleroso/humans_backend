@@ -1,1 +1,1 @@
-from .users.models import CustomUser
+from api.dataModels.CustomUsers import CustomUser

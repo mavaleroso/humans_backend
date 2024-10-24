@@ -1,21 +1,14 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
-from drf_yasg.utils import swagger_auto_schema
 from rest_framework.authtoken.models import Token
+from api.annotations.users.postVerifyToken import verifyToken_schema
 
 class CheckActiveSessionView(APIView):
     permission_classes = [IsAuthenticated]  # Ensures the request is authenticated
 
-    @swagger_auto_schema(
-        operation_description="Check if the user has an active session. Use 'Token {your_token}' format.",
-        tags=["Authentication"],
-        security=[{'Token': []}],  # Reference the security scheme here
-        responses={
-            200: "Active session details",
-            401: "Unauthorized, token invalid or expired"
-        }
-    )
+
+    @verifyToken_schema
     def post(self, request):
         # DRF automatically gets the user from the token
         user = request.user

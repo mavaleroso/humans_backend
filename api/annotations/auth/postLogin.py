@@ -1,5 +1,6 @@
-# myapp/serializers.py
 
+from drf_yasg import openapi
+from drf_yasg.utils import swagger_auto_schema
 from rest_framework import serializers
 
 class LoginSerializer(serializers.Serializer):
@@ -14,3 +15,13 @@ class LoginSerializer(serializers.Serializer):
         help_text="Your password",
         style={'input_type': 'password'},  # This makes it a password input (hidden)
     )
+
+login_schema = swagger_auto_schema(
+    operation_description="User login endpoint",
+    request_body=LoginSerializer,
+    responses={
+        200: openapi.Response(description="Login successful", examples={"application/json": {"token": "jwt_token_here"}}),
+        400: openapi.Response(description="Invalid credentials"),
+        401: openapi.Response(description="Unauthorized")
+    }
+)

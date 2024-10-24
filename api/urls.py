@@ -1,6 +1,6 @@
 from django.urls import path, include
 
 urlpatterns = [
-    path('', include('api.login.urls')),
-    path('', include('api.users.urls')),
+    path('', include('api.controllers.auth.urls')),
+    path('', include('api.controllers.users.urls')),
 ]
