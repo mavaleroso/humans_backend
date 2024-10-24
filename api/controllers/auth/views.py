@@ -10,6 +10,7 @@ from api.annotations.auth.postLogout import logout_schema
 from api.services.auth.loginService import LoginService
 from api.requests.auth.LoginRequest import LoginRequest
 from django.http import JsonResponse
+from rest_framework.authtoken.models import Token
 
 class LoginAPIView(APIView):
     permission_classes = [AllowAny]
