@@ -2,6 +2,8 @@ import os
 from django.contrib.auth import get_user_model
 from rest_framework.authtoken.models import Token
 from django.utils import timezone
+import requests
+
 User = get_user_model() 
 
 class LoginService():
