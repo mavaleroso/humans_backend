@@ -34,10 +34,26 @@ schema_view = get_schema_view(
     permission_classes=(permissions.AllowAny,),
 )
 
+rsp_view = get_schema_view(
+    openapi.Info(
+        title="HUMANS API (RSP)",
+        default_version='v1',
+        description="HUMAN RESOURCE AUTOMATED SYSTEM API (RSP)",
+        terms_of_service="https://www.example.com/terms/",
+        contact=openapi.Contact(email="contact@example.com"),
+        license=openapi.License(name="Solutions Development Unit"),
+    ),
+    public=True,
+    permission_classes=(permissions.AllowAny,),
+    patterns=[
+        path('api/', include('api.controllers.users.urls')),
+    ]
+)
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include('api.urls')),
-    path('api/documentation/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
+    path('api/documentation/', schema_view.with_ui('swagger', cache_timeout=0), name='all'),
+    path('api/documentation/rsp/', rsp_view.with_ui('swagger', cache_timeout=0), name='rsp'),
     path('', lambda request: redirect('api/documentation/', permanent=False)),
-    # path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
 ]

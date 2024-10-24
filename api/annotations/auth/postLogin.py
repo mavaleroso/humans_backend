@@ -5,6 +5,7 @@ from drf_yasg.utils import swagger_auto_schema
 
 login_schema = swagger_auto_schema(
     operation_description="User login endpoint",
+    tags=["Authentication"],
     request_body=openapi.Schema(
         type=openapi.TYPE_OBJECT,
         properties={
