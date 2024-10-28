@@ -12,14 +12,15 @@ class CheckActiveSessionView(APIView):
     # permission_classes = [IsAuthenticated]
 
     @newlyhiredlist_schema
-    def post(self, request):
+    def get(self, request):
         validated_response = NewlyHiredListRequest.execute(request)
         if validated_response['status_code'] == 200 :
             results = NewlyHiredListService.execute(validated_response)
+
             return JsonResponse({
                 'status_code': 200,
                 'status': 'success',
-                'data': results
+                'data': results['data']
             }, status=200) 
         else:
             return JsonResponse(validated_response, status=validated_response['status_code']) 
