@@ -13,7 +13,8 @@ class CheckActiveSessionView(APIView):
 
     @newlyhiredlist_schema
     def get(self, request):
-        validated_response = NewlyHiredListRequest.execute(request)
+        page = request.GET.get('page', 1)
+        validated_response = NewlyHiredListRequest.execute(request,page)
         if validated_response['status_code'] == 200 :
             results = NewlyHiredListService.execute(validated_response)
 
