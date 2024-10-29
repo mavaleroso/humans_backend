@@ -11,7 +11,7 @@ class LoginService():
     def execute(params):
         data = params['data']
         api_key = data['key']
-        portal_api_employee_details = os.getenv('PORTAL_API_EMPLOYEE_DETAILS')
+        portal_api_employee_details = f"{os.getenv('PORTAL_API_URL')}/api/employee/list/search/?q="
         username = data['username']
         try:
             user = User.objects.get(username=username)

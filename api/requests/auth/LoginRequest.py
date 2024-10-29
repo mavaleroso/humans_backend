@@ -22,8 +22,8 @@ class LoginRequest:
 
             try:
                 # Get the external API URLs from environment variables
-                portal_api_login = os.getenv('PORTAL_API_LOGIN')
-                portal_api_employee_details = os.getenv('PORTAL_API_EMPLOYEE_DETAILS')
+                portal_api_login = f"{os.getenv('PORTAL_API_URL')}/api/rest-auth/login/"
+                portal_api_employee_details = f"{os.getenv('PORTAL_API_URL')}/api/employee/list/search/?q="
 
                 # Perform login request to external API
                 response = requests.post(portal_api_login, data={
