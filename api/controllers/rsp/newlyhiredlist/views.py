@@ -15,14 +15,7 @@ class CheckActiveSessionView(APIView):
     def get(self, request):
         page = request.GET.get('page', 1)
         validated_response = NewlyHiredListRequest.execute(request,page)
-        if validated_response['status_code'] == 200 :
-            results = NewlyHiredListService.execute(validated_response)
+    
+        results = NewlyHiredListService.execute(validated_response)
 
-            return JsonResponse({
-                'status_code': 200,
-                'status': 'success',
-                'data': results['data']
-            }, status=200) 
-        else:
-            return JsonResponse(validated_response, status=validated_response['status_code']) 
-
+        return JsonResponse(results)
